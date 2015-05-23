@@ -5,6 +5,7 @@ summary: "A quick lesson in demand-based back pressure and the use of buffers in
 categories: scala akka streams
 ---
 
+
 There is a significant amount of subtle, yet precisely calibrated, styling to ensure
 that your content is emphasized while still looking aesthetically pleasing.
 
@@ -18,7 +19,7 @@ works if <del>for some reason you need to update your post</del>. For consistenc
 Code blocks use the [solarized](http://ethanschoonover.com/solarized) theme. Both the light and
 dark versions are included, so you can swap them out easily. _Solarized Dark_ is the default.
 
-{% highlight scala %}
+````scala
   def bollinger(window: Int = defaultWindow) = Flow() { implicit b =>
 
     val in = b.add(Broadcast[Quote](2))
@@ -36,7 +37,7 @@ dark versions are included, so you can swap them out easily. _Solarized Dark_ is
 
     (in.in, merge.outlet)
   }
-{% endhighlight %}
+````
 
 # Headings!
 
