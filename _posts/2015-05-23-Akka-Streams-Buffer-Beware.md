@@ -1,7 +1,6 @@
 ---
 published: true
 layout: post
-date: {}
 summary: "A quick lesson in demand-based back pressure and the use of buffers in flows"
 categories: scala akka streams
 ---
