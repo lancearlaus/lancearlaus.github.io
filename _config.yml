@@ -1,10 +1,10 @@
 # Site settings
-title:       Pixyll
+title:       Lance Arlaus
 email:       your_email@example.com
-author:      John Otander
-description: "A simple, beautiful theme for Jekyll that emphasizes content rather than aesthetic fluff."
+author:      Lance Arlaus
+description: "Software architecture and engineering through a wide-angled lens"
 baseurl:     ""
-url:         "http://pixyll.com"
+url:         "http://blog.lancearlaus.com"
 
 # Google analytics
 google_analytics:
@@ -35,9 +35,9 @@ show_sharing_icons: false
 share_text: 'Share this post!'
 # Change to 'true' to enable individual icons
 share_facebook: false
-share_twitter: false
+share_twitter: true
 share_googleplus: false
-share_linkedin: false
+share_linkedin: true
 share_digg: false
 share_tumblr: false
 share_reddit: false
