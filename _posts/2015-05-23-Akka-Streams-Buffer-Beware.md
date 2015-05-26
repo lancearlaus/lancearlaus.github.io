@@ -32,13 +32,14 @@ Curious where this problem comes from? Historical stock quotes are often deliver
 
 #### A Simple Solution
 
-Here's a simple solution to this problem, both text and visual
+Here's a simple solution to this problem
+
 * Broadcast (copy) the incoming stream into two streams. For convenience and visual clarity, let's call the two new streams up and down.
 * Leave the up stream unchanged
 * Queue a sliding window and calulate the moving average on the down stream
 * Zip and merge the up and down stream elements together to produce the final quote stream containing the original data along with the moving average
 
-And, the corresponding Akka Streams code. Note that this example was coded against Akka Streams 1.0-RC2 and that it uses the flow DSL (~>) operator.
+And, the corresponding Akka Streams code. Note that this example was coded against Akka Streams 1.0-RC2 and that it uses the flow DSL (~>) operator
 
 ````scala
   def bollinger(window: Int = defaultWindow) = Flow() { implicit b =>
