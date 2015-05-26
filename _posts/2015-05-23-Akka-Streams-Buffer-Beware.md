@@ -25,11 +25,42 @@ However, the analogy only goes so far and, in fact, can get in the way when tryi
 
 Here's a simple, real world problem to solve using Akka Streams.
 
-> Given a reverse time series of stock quotes (that is, newest quote first)  
-> When a sliding window size is selected  
-> Then compute the corresponding simple moving average for each quote  
+> __Given__: A reverse time series of stock quotes (that is, newest quote first)  
+> __When__: A sliding window size is selected  
+> __Then__: Compute the corresponding simple moving average for each quote  
 
 Curious where this problem comes from? Historical quotes are often delivered as a reverse time series (Yahoo Finance does this, for example) since recent data is typically most relevant.
+
+#### A Simple Solution
+
+Here's a simple solution to this problem, both text and visual
+* Broadcast (copy) the incoming stream into two streams. For convenience and visual clarity, let's call the two new streams up and down.
+* Leave the up stream unchanged
+* Queue a sliding window and calulate the moving average on the down stream
+* Zip and merge the up and down stream elements together to produce the final quote stream containing the original data along with the moving average
+
+And, the corresponding Akka Streams code. Note that this example was coded against Akka Streams 1.0-RC2 and that it uses the flow DSL (~>) operator.
+
+````scala
+  def bollinger(window: Int = defaultWindow) = Flow() { implicit b =>
+
+    val in = b.add(Broadcast[Quote](2))
+    val extract = b.add(Flow[Quote].map(_("Close").toDouble))
+    val statistics = b.add(Flow[Double].slidingStatistics(window))
+    val bollinger = b.add(Flow[Statistics[Double]].map(Bollinger(_)))
+    // Need buffer to avoid deadlock. See: https://github.com/akka/akka/issues/17435
+    val buffer = b.add(Flow[Quote].buffer(window, OverflowStrategy.backpressure))
+    val zip = b.add(Zip[Quote, Bollinger])
+    val merge = b.add(Flow[(Quote, Bollinger)].map(t => t._1 ++ t._2))
+
+    in ~> buffer                             ~> zip.in0
+    in ~> extract ~> statistics ~> bollinger ~> zip.in1
+                                                zip.out ~> merge
+
+    (in.in, merge.outlet)
+  }
+````
+
 
 #### Invert that Thought
 
