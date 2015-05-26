@@ -6,6 +6,7 @@ categories: scala akka streams
 ---
 
 
+
 There is a significant amount of subtle, yet precisely calibrated, styling to ensure
 that your content is emphasized while still looking aesthetically pleasing.
 
@@ -33,7 +34,7 @@ dark versions are included, so you can swap them out easily. _Solarized Dark_ is
 
     in ~> buffer                             ~> zip.in0
     in ~> extract ~> statistics ~> bollinger ~> zip.in1
-    zip.out ~> merge
+                                                zip.out ~> merge
 
     (in.in, merge.outlet)
   }
