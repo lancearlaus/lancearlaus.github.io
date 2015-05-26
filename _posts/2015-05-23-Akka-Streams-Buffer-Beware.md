@@ -32,7 +32,7 @@ Curious where this problem comes from? Historical stock quotes are often deliver
 
 #### A Simple Solution
 
-Here's a simple solution to this problem
+Here's a simple solution to the problem
 
 * Copy (broadcast) the incoming stream into two streams. Let's call them Up and Down.
 * Leave the Up stream unchanged
