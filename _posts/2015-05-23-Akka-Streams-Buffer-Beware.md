@@ -5,17 +5,35 @@ summary: "A quick lesson in demand-based back pressure and the use of buffers in
 categories: scala akka streams
 ---
 
-### Akka Streams - Understanding (no, __really__ understanding) demand-based back pressure
+### Akka Streams - Understanding (no, __really__ understanding) Demand-based Back Pressure
 
 Want to really understand Reactive Streams? Stop thinking Unix pipes.
 
-In this post, I'll tell you why the Unix pipes analogy can get in the way of understanding and debugging a Reactive Streams application.
+In this post, I'll tell you why the Unix pipes analogy can get in the way of understanding and debugging an Akka Streams (or any Reactive Streams) application.
 
 #### A Good Starting Point
 
 Unix pipes are a convenient analogy to use when explaining Reactive Streams to developers. After all, who hasn't used strung together a couple of commands with the trusty pipe (|) operator on the command line?
 
-However, the analogy only goes so far and, in fact, can get in the way when trying to understand a Reactive Streams-based application 
+````bash
+find ~/Projects -name '*.scala' | wc -l
+````
+
+However, the analogy only goes so far and, in fact, can get in the way when trying to understand a Reactive Streams-based application. At least, it did for me, hence the post.
+
+#### A Simple Problem
+
+Here's a simple, real world problem to solve using Akka Streams.
+
+> Given a reverse time series of stock quotes (that is, newest quote first)
+> When a sliding window size is selected
+> Then compute the corresponding simple moving average for each quote
+
+Curious where this problem comes from? Historical quotes are often delivered as a reverse time series (Yahoo Finance does this, for example) since recent data is typically most relevant.
+
+#### Invert that Thought
+
+I know what you're thinking - you've already read the basics on streams. You get that it's 
 
 To really understand Reactive Streams, you need to stop thinking
 
