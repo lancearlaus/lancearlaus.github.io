@@ -16,6 +16,7 @@ In this post, I'll tell you why the Unix pipes analogy can get in the way of und
 Unix pipes are a convenient analogy to use when explaining Reactive Streams to developers. After all, who hasn't used strung together a couple of commands with the trusty pipe (|) operator on the command line?
 
 ````bash
+# Count my Scala files
 find ~/Projects -name '*.scala' | wc -l
 ````
 
