@@ -26,7 +26,20 @@ However, the analogy only goes so far and, in fact, can get in the way when tryi
 
 Here's a simple, real world problem to solve using Akka Streams.
 
-> Compute the simple moving average for a reverse time series of stock quotes.
+> Given a sliding window size, compute the simple moving average for a reverse time series of stock quotes.
+
+__Example__
+Sliding window size = 4
+| Time | Quote | SMA(4) |
+|-----:|------:|-------:|
+|     8|      5|        |
+|     7|      5|        |
+|     6|      5|        |
+|     5|      5|        |
+|     4|      5|        |
+|     3|      5|        |
+|     2|      5|        |
+|     1|      5|        |
 
 Curious where this problem comes from? Historical stock quotes are often delivered as a reverse time series (Yahoo Finance does this, for example) since recent data is typically most relevant.
 
@@ -34,10 +47,11 @@ Curious where this problem comes from? Historical stock quotes are often deliver
 
 Here's a simple solution to this problem
 
-* Broadcast (copy) the incoming stream into two streams. For convenience and visual clarity, let's call the two new streams up and down.
-* Leave the up stream unchanged
-* Queue a sliding window and calulate the moving average on the down stream
-* Zip and merge the up and down stream elements together to produce the final quote stream containing the original data along with the moving average
+* Copy (broadcast) the incoming stream into two streams. Let's call them Up and Down.
+* Leave the Up stream unchanged
+* Queue a sliding window and calulate the moving average on the Down stream
+* Zip and merge the Up and Down stream elements together
+* The final output is a stream of quotes with the simple moving average appended
 
 And, the corresponding Akka Streams code. Note that this example was coded against Akka Streams 1.0-RC2 and that it uses the flow DSL (~>) operator
 
