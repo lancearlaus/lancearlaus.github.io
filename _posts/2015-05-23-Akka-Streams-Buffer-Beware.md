@@ -5,7 +5,21 @@ summary: "A quick lesson in demand-based back pressure and the use of buffers in
 categories: scala akka streams
 ---
 
+### Akka Streams - Understanding (no, __really__ understanding) demand-based back pressure
 
+Want to really understand Reactive Streams? Stop thinking Unix pipes.
+
+In this post, I'll tell you why the Unix pipes analogy can get in the way of understanding and debugging a Reactive Streams application.
+
+#### A Good Starting Point
+
+Unix pipes are a convenient analogy to use when explaining Reactive Streams to developers. After all, who hasn't used strung together a couple of commands with the trusty pipe (|) operator on the command line?
+
+However, the analogy only goes so far and, in fact, can get in the way when trying to understand a Reactive Streams-based application 
+
+To really understand Reactive Streams, you need to stop thinking
+
+If you're reading this, you're probably familiar with Akka Streams and the Reactive Streams movement. You've probably also 
 
 There is a significant amount of subtle, yet precisely calibrated, styling to ensure
 that your content is emphasized while still looking aesthetically pleasing.
