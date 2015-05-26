@@ -1,9 +1,14 @@
 ---
 published: true
 layout: post
-summary: "A quick lesson in demand-based back pressure and the use of buffers in flows"
-categories: scala akka streams
+summary: "Want to really understand Reactive Streams? Stop thinking Unix pipes."
+categories: 
+  - scala
+  - akka streams
+  - reactive
+title: "Beyond the Pipe: Really Thinking Pull in Reactive Systems"
 ---
+
 
 ### Akka Streams - Understanding (no, __really__ understanding) Demand-based Back Pressure
 
