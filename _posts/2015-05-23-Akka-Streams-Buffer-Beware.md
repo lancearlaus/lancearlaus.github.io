@@ -28,19 +28,6 @@ Here's a simple, real world problem to solve using Akka Streams.
 
 > Given a sliding window size, compute the simple moving average for a reverse time series of stock quotes.
 
-__Example (sliding window size = 4)__
-
-| Time | Quote | SMA(4) |
-|-----:|------:|-------:|
-|     8|      5|        |
-|     7|      5|        |
-|     6|      5|        |
-|     5|      5|        |
-|     4|      5|        |
-|     3|      5|        |
-|     2|      5|        |
-|     1|      5|        |
-
 Curious where this problem comes from? Historical stock quotes are often delivered as a reverse time series (Yahoo Finance does this, for example) since recent data is typically most relevant.
 
 #### A Simple Solution
