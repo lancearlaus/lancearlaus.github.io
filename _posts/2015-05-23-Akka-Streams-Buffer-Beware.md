@@ -2,10 +2,7 @@
 published: true
 layout: post
 summary: "Want to really understand Reactive Streams? Stop thinking Unix pipes."
-categories: 
-  - scala
-  - akka streams
-  - reactive
+categories: scala akka streams reactive
 title: "Beyond the Pipe: Really Thinking Pull in Reactive Systems"
 ---
 
