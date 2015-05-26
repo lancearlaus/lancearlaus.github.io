@@ -8,7 +8,8 @@ title: "Beyond the Pipe: Really Thinking Pull in Reactive Systems"
 
 
 
-Want to really understand Reactive Streams? Stop thinking Unix pipes.
+
+Want to better understand Reactive Streams? Stop thinking Unix pipes.
 
 In this post, I'll tell you why the Unix pipes analogy can get in the way of understanding and debugging an Akka Streams (or any Reactive Streams) application.
 
@@ -21,29 +22,30 @@ Unix pipes are a convenient analogy to use when explaining Reactive Streams to d
 find ~/Projects -name '*.scala' | wc -l
 ````
 
-However, the analogy only goes so far and, in fact, can get in the way when trying to understand a Reactive Streams-based application. At least, it did for me, hence the post.
+However, the analogy only goes so far and, in fact, can get in the way when trying to understand a Reactive Streams-based application. At least it did for me, hence the post.
 
 #### A Simple Problem
 
 Here's a simple, real world problem to solve using Akka Streams.
 
-> Given a reverse time series of stock quotes (that is, most recent quote first) and a sliding window size, compute the simple moving average (SMA) for each point in the series
+> Given a reverse time series of stock quotes (that is, most recent quote first) and a sliding window size, compute the simple moving average (SMA) for each quote in the series
+
+![Akka Streams Moving Average Data]({{ site.url }}/images/Akka Streams Moving Average Data.png)
 
 Curious where this problem comes from? Historical stock quotes are often delivered as a reverse time series (Yahoo Finance does this, for example) since recent data is typically most relevant
 
 #### A Simple Solution
 
-Here's a simple solution to the problem
+Here's a simple solution to the problem.
 
 * Copy (broadcast) the incoming stream into two streams. Let's call them Up and Down.
 * Leave the Up stream unchanged
 * Queue a sliding window and calulate the moving average on the Down stream
 * Zip and merge the Up and Down stream elements together
-* The final output is a stream of quotes with the simple moving average appended as an additional field
 
-![Akka Streams Moving Average Data]({{ site.url }}/images/Akka Streams Moving Average Data.png)
+The result is a stream of quotes with the simple moving average appended. Here's a diagram of the Akka Streams stages described along with the corresponding Scala code. I covered the sliding window stage in a previous post on creating stateful stages. Note that this example was coded against Akka Streams 1.0-RC3 and that it uses the flow DSL (~>) operator.
 
-And, the corresponding Akka Streams code. Note that this example was coded against Akka Streams 1.0-RC2 and that it uses the flow DSL (~>) operator
+![Akka Streams Moving Average Flow]({{ site.url }}/images/Akka Streams Moving Average Flow.png)
 
 ````scala
   def bollinger(window: Int = defaultWindow) = Flow() { implicit b =>
