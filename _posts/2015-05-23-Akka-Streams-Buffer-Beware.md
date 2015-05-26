@@ -25,9 +25,9 @@ However, the analogy only goes so far and, in fact, can get in the way when tryi
 
 Here's a simple, real world problem to solve using Akka Streams.
 
-> Given a reverse time series of stock quotes (that is, newest quote first)
-> When a sliding window size is selected
-> Then compute the corresponding simple moving average for each quote
+> Given a reverse time series of stock quotes (that is, newest quote first)  
+> When a sliding window size is selected  
+> Then compute the corresponding simple moving average for each quote  
 
 Curious where this problem comes from? Historical quotes are often delivered as a reverse time series (Yahoo Finance does this, for example) since recent data is typically most relevant.
 
