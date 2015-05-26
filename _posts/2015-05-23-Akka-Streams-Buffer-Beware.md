@@ -7,7 +7,6 @@ title: "Beyond the Pipe: Really Thinking Pull in Reactive Systems"
 ---
 
 
-### Akka Streams - Understanding (no, __really__ understanding) Demand-based Back Pressure
 
 Want to really understand Reactive Streams? Stop thinking Unix pipes.
 
@@ -42,7 +41,7 @@ Here's a simple solution to the problem
 * Zip and merge the Up and Down stream elements together
 * The final output is a stream of quotes with the simple moving average appended as an additional field
 
-<div class="mxgraph" style="position:relative;overflow:auto;width:100%;"><div style="width:1px;height:1px;overflow:hidden;">vZTPkuIgEMafJsetSkLpmKuOO3OZk4c5Y2gDNQRShGji0wumEVndndPOxYLfR/rP111mZNOOb4Z2/EMzkFmZszEjr1lZVi+F+/VgmsFqtZhBYwSbEb7wYCfOgDBHOggGffLQai2t6FJYa6Wgtgk7aJmm6GgTwkewq6l8pJ+CWY4ll8vI30E0PKQpltWs9HYKMRgc6CDtrytympdbGmJhV2MeusQAUwAVgo6qpKaz1m0CDPTRLOxXpP0rekyy7rVhYBIkhfq6N5Js3SyN1i6QP7XjBqSfZ5jV/Nnvv6g3/wwoLOXfH6A/RyoHbOXBT6MHxcC/LzKyPnFhYdfR2qsnt3GOcdtKlDEcGAu4gE9Kio26pQXdgjWTn0kYKlqDC1vmeD/FjSgC43fbsEBG0c/mFjoa4A7owXM/yPd+9Jx2/gijy7tmethfFd/9T1tF/rSq+n9WuWtcy6t2939Dthc=</div></div>
+<div class="mxgraph" style="position:relative;overflow:auto;width:100%;"><div style="width:1px;height:1px;overflow:hidden;">7Vpdb+I6E/41SOdcFCUkfF2Wds+H9FZvpV7stYkNWGtijmMo3V+/M8k4iZPAtqv0CB3gApLH8djzzEfsMYPoYXv807Dd5klzoQajgB8H0eNgNJpPQ/hG4K0AZrNxAayN5AVETyDwIr8LAgNC95KLzHvQaq2s3PlgotNUJNbDVlr5Q+zY2omvgJeEqTb6VXK7oSmPJhX+l5DrjRsmnMyLlsy+ORlcrNhe2bscgjZs3jIni7Q6BsVtTP3f6D6MZm6o1JvSd623HmBEVnFF6kpf/ZQdvEGX2nBhPEjJ9Fudx+gLmNJoDYLwant8EArN6UxVdPvjRGtJnxEpTeV8hzgZhywSnCWxiEQwuSOiD0ztSbfBaKJA1oLLg8fz5J89znJhxdHeMSXXwNc9aiRWtmqFqzX95lIy5LVLDBAh7jZkW5QTDnHohpgXJblM19D8VaZcv8JFLiWI3ACgazGGPy7AuQIObfiM0fuUCyQlhObXjbTiZccSbH2FqAJsY7eKmlc6tRQnECTRgpmEbudwdxDGSvDo/7GlUM86k1ZqdCWrUYxqoAkYCl1iQQw+5vRVUu4JXmpr0QEXnGWbcqJ488wsSMBnwPpBXGpXdwLyCxQqKC9U3gaJQ+itsOYN48KFASUJShrhnPz1tYrK0ZQwZzUEJ4Qxcup1KbryQrggR+x2SorZDh+0bAkWa5jWLjXktiZoWgh/l/uaXJeW4z0yC/3ggdKdUN4vjdAdIJhugyeGipweAcG2Yj2r+mwkOv4n6uqELCvlhwHoX45XNnycDQS7HAJx33v6TAE9hFzkXgkUciNkpBFys46Ii3uIuNZrANLp9YUgLAWuNgLntwAcRRcUgPE1BiAsvW+vwCuOwNCF0iVEIC2ArysCp1ccgbNbAI4vKP6oDuPFX4OubMN2eLlS4nhvDJQDooVIOV0+JoplmUzOs+ZUi4e4dYbe1DgdxlE4r33GRbMrS82H0eQc6YJ7la425TVOHe11Th1mhGJWHvxCUxfRNMKzljCTalEz9Tfy5abdicj03iSCetUrRQ1BcfATQZaZtbAtQbndS7V/zRVcKfJ0Lg5c+aRWUDob9beiwW3F9DM2qOT4dP9b9Pu/vRubQCH2ul9FjbVgVwXSQX0XINsJyE3/loBuJZP+SyaXl36ufiUcX1T66aoGNQjD87P8lM7AIWxxtgRLO5zq2aMrylrlMVQf1DUK2eWuvkadW9HVqQvdkrdf7tr7+L/T3b5Yo9YJxFjxycqs0d/Eg1Yaz2xTnRO8kko1IEdikZraZ3dbyTmO0unGGp5eqXy/soHnBHTwrIS7kvyeZtpxxPvxo4ZJ43Svw0IOqlvIGbZfA9EJfM1A/9/bz7HQicPVizNQK/t0GMhlmk83kBP6n92JnyC93OG+c6f+/k35yZE+uikfT3EPVH1I49636HBb/SeleLz6r1H05Qc=</div></div>
 
 And, the corresponding Akka Streams code. Note that this example was coded against Akka Streams 1.0-RC2 and that it uses the flow DSL (~>) operator
 
