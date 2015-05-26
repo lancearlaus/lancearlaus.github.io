@@ -41,7 +41,7 @@ Here's a simple solution to the problem
 * Zip and merge the Up and Down stream elements together
 * The final output is a stream of quotes with the simple moving average appended as an additional field
 
-![Akka Streams Moving Average Data]({{ site.url }}/images/Akka Stream Moving Average Data.png)
+![Akka Streams Moving Average Data]({{ site.url }}/images/Akka Streams Moving Average Data.png)
 
 And, the corresponding Akka Streams code. Note that this example was coded against Akka Streams 1.0-RC2 and that it uses the flow DSL (~>) operator
 
