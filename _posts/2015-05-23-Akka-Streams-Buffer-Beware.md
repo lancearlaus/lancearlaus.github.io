@@ -13,7 +13,7 @@ In this post, I'll tell you why the Unix pipes analogy can get in the way of und
 
 #### A Good Starting Point
 
-Unix pipes are a convenient analogy to use when explaining Reactive Streams to developers. After all, who hasn't used strung together a couple of commands with the trusty pipe (|) operator on the command line?
+Unix pipes are a convenient analogy to use when explaining Reactive Streams to developers. After all, who hasn't strung together a couple of commands with the trusty pipe (|) operator on the command line?
 
 ````bash
 # Count my Scala files
@@ -26,9 +26,9 @@ However, the analogy only goes so far and, in fact, can get in the way when tryi
 
 Here's a simple, real world problem to solve using Akka Streams.
 
-> Given a sliding window size, compute the simple moving average for a reverse time series of stock quotes.
+> Given a reverse time series of stock quotes (that is, most recent quote first) and sliding window size, compute the simple moving average for each point in the series
 
-Curious where this problem comes from? Historical stock quotes are often delivered as a reverse time series (Yahoo Finance does this, for example) since recent data is typically most relevant.
+Curious where this problem comes from? Historical stock quotes are often delivered as a reverse time series (Yahoo Finance does this, for example) since recent data is typically most relevant
 
 #### A Simple Solution
 
@@ -38,7 +38,9 @@ Here's a simple solution to the problem
 * Leave the Up stream unchanged
 * Queue a sliding window and calulate the moving average on the Down stream
 * Zip and merge the Up and Down stream elements together
-* The final output is a stream of quotes with the simple moving average appended
+* The final output is a stream of quotes with the simple moving average appended as an additional field
+
+<div class="mxgraph" style="position:relative;overflow:auto;width:100%;"><div style="width:1px;height:1px;overflow:hidden;">vZTPkuIgEMafJsetSkLpmKuOO3OZk4c5Y2gDNQRShGji0wumEVndndPOxYLfR/rP111mZNOOb4Z2/EMzkFmZszEjr1lZVi+F+/VgmsFqtZhBYwSbEb7wYCfOgDBHOggGffLQai2t6FJYa6Wgtgk7aJmm6GgTwkewq6l8pJ+CWY4ll8vI30E0PKQpltWs9HYKMRgc6CDtrytympdbGmJhV2MeusQAUwAVgo6qpKaz1m0CDPTRLOxXpP0rekyy7rVhYBIkhfq6N5Js3SyN1i6QP7XjBqSfZ5jV/Nnvv6g3/wwoLOXfH6A/RyoHbOXBT6MHxcC/LzKyPnFhYdfR2qsnt3GOcdtKlDEcGAu4gE9Kio26pQXdgjWTn0kYKlqDC1vmeD/FjSgC43fbsEBG0c/mFjoa4A7owXM/yPd+9Jx2/gijy7tmethfFd/9T1tF/rSq+n9WuWtcy6t2939Dthc=</div></div>
 
 And, the corresponding Akka Streams code. Note that this example was coded against Akka Streams 1.0-RC2 and that it uses the flow DSL (~>) operator
 
@@ -158,3 +160,5 @@ Checkout the [Github repository](https://github.com/johnotander/pixyll) to reque
 or add, features.
 
 Happy writing.
+
+<script type="text/javascript" src="https://www.draw.io/js/embed-static.min.js"></script>
