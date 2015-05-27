@@ -10,12 +10,14 @@ Deadlock in an Akka Streams application? Yes, and it doesn't take much, but it's
 
 In this post, I'll give you a quick tip for avoiding deadlock in your branching flows and share a simple, real-world example that demonstrates its use.
 
+First, the quick tip...
+
 #### Quick Tip: Use a Buffer to match uneven flow branches
 
-__Summary:__
+__Summary:__  
 Use a buffer if you broadcast a stream and subsequently zip the resulting outputs together if the intermediate branches are uneven.
 
-__Explanation:__
+__Explanation:__  
 A standard Broadcast stage branches a stream. It has one input and multiple outputs with each output emitting the original input. In other words, a standard Broadcast stage broadcasts each incoming element to multiple recipients.
 
 Uneven flow branches are created when elements are stored, created, or dropped differently amongst branches. A simple example, depicted below, is a two-branch stream where elements are dropped on one branch, but not the other.
