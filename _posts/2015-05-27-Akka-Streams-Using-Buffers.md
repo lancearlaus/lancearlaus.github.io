@@ -6,6 +6,8 @@ categories: scala akka streams reactive
 title: "Akka Streams Beyond Basics: Keep that Buffer handy to avoid deadlock"
 ---
 
+![Akka Streams Buffer Thumbnail]({{ site.url }}/images/Akka Streams Buffer Thumbnail.png)
+
 Deadlock in an Akka Streams application? Yes, and it doesn't take much, but it's also easy to avoid for the case covered here.
 
 In this post, I'll give you a quick tip for avoiding deadlock in your branching flows and share a simple, real-world example that demonstrates its use.
@@ -14,34 +16,21 @@ First, the quick tip...
 
 #### Quick Tip: Use a Buffer to match uneven flow branches
 
-__Summary:__  
 Use a buffer if you broadcast a stream and subsequently zip the resulting outputs together if the intermediate branches are uneven.
 
 <aside>Hint: If your flow looks like a diamond, you'll need a buffer if the branches are uneven.</aside>
 
-__Explanation:__  
+#### Quick Tip Explained
+
 A standard Broadcast stage branches a stream. It has one input and multiple outputs with each output emitting the original input. In other words, a standard Broadcast stage broadcasts each incoming element to multiple recipients.
 
 Uneven flow branches are created when elements are stored, created, or dropped differently amongst branches. A simple example, depicted below, is a two-branch stream where elements are dropped on one branch, but not the other.
 
- 
+__TODO: Diagram__
 
-#### A Good Starting Point
+Notice the difference in the number of elements produced 
 
-Unix pipes are a convenient analogy to use when explaining Reactive Streams to developers. After all, who hasn't strung together a couple of commands with the trusty pipe (|) operator on the command line?
-
-````bash
-# Count my Scala files
-find ~/Projects -name '*.scala' | wc -l
-````
-
-However, the analogy only goes so far and, in fact, can get in the way when trying to understand a Reactive Streams-based application. At least it did for me, hence the post.
-
-#### The Key Difference - Pull vs. Push, or Why a Stream is NOT a Pipe
-
-I know what you're thinking 
-
-#### A Simple Problem
+#### A Real-World Example
 
 Here's a simple, real world problem to solve using Akka Streams.
 
