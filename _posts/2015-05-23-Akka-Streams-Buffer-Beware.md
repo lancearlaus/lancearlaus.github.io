@@ -9,6 +9,7 @@ title: "Beyond the Pipe: Really Thinking Pull in Reactive Systems"
 
 
 
+
 Want to better understand Reactive Streams? Stop thinking Unix pipes.
 
 In this post, I'll tell you why the Unix pipes analogy can get in the way of understanding and debugging an Akka Streams (or any Reactive Streams) application.
@@ -28,7 +29,7 @@ However, the analogy only goes so far and, in fact, can get in the way when tryi
 
 Here's a simple, real world problem to solve using Akka Streams.
 
-> Given a reverse time series of stock quotes (that is, most recent quote first) and a sliding window size, compute the simple moving average (SMA) for each quote in the series
+> Given a reverse time series of stock quotes (that is, most recent quote first) and a sliding window size, compute the simple moving average (SMA) of the closing price for each quote in the series
 
 ![Akka Streams Moving Average Data]({{ site.url }}/images/Akka Streams Moving Average Data.png)
 
@@ -38,33 +39,31 @@ Curious where this problem comes from? Historical stock quotes are often deliver
 
 Here's a simple solution to the problem.
 
-* Copy (broadcast) the incoming stream into two streams. Let's call them Up and Down.
-* Leave the Up stream unchanged
-* Queue a sliding window and calulate the moving average on the Down stream
-* Zip and merge the Up and Down stream elements together
-
-The result is a stream of quotes with the simple moving average appended. Here's a diagram of the Akka Streams stages described along with the corresponding Scala code. I covered the sliding window stage in a previous post on creating stateful stages. Note that this example was coded against Akka Streams 1.0-RC3 and that it uses the flow DSL (~>) operator.
-
 ![Akka Streams Moving Average Flow]({{ site.url }}/images/Akka Streams Moving Average Flow.png)
 
+* Copy (broadcast) the incoming stream into two streams. Let's call them Up and Down.
+* Leave the Up stream unchanged
+* Queue a sliding window of prices and calulate the moving average on the Down stream
+* Zip and merge the Up and Down stream elements together
+
+The result is a stream of quotes with the simple moving average appended. Here's the corresponding Scala code. I covered the sliding window stage in a previous post on creating stateful stages. Note that this example was coded against Akka Streams 1.0-RC3 and that it uses the flow DSL (~>) operator.
+
 ````scala
-  def bollinger(window: Int = defaultWindow) = Flow() { implicit b =>
+def movingAverage(window: Int = 3) = Flow() { implicit b =>
 
-    val in = b.add(Broadcast[Quote](2))
-    val extract = b.add(Flow[Quote].map(_("Close").toDouble))
-    val statistics = b.add(Flow[Double].slidingStatistics(window))
-    val bollinger = b.add(Flow[Statistics[Double]].map(Bollinger(_)))
-    // Need buffer to avoid deadlock. See: https://github.com/akka/akka/issues/17435
-    val buffer = b.add(Flow[Quote].buffer(window, OverflowStrategy.backpressure))
-    val zip = b.add(Zip[Quote, Bollinger])
-    val merge = b.add(Flow[(Quote, Bollinger)].map(t => t._1 ++ t._2))
+  val in = b.add(Broadcast[Quote](2))
+  val extract = b.add(Flow[Quote].map(_("Close").toDouble))
+  val sliding = b.add(Flow[Double].transform(() => new Sliding(window)))
+  val average = b.add(Flow[Iterator[Double]].map(_.foldLeft(0.0)(_ + _)).map(_ / window))
+  val zip = b.add(Zip[Quote, Double])
+  val merge = b.add(Flow[(Quote, Double)].map { case (quote, sma) => quote + ("SMA" -> f"$sma%1.2f") })
 
-    in ~> buffer                             ~> zip.in0
-    in ~> extract ~> statistics ~> bollinger ~> zip.in1
-                                                zip.out ~> merge
+  in ~>                                  zip.in0
+  in ~> extract ~> sliding ~> average ~> zip.in1
+                                         zip.out ~> merge
 
-    (in.in, merge.outlet)
-  }
+  (in.in, merge.outlet)
+}
 ````
 
 
