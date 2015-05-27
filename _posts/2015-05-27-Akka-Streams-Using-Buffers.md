@@ -14,10 +14,10 @@ First, the quick tip...
 
 #### Quick Tip: Use a Buffer to match uneven flow branches
 
-<aside>Quick Tip: Use a Buffer to match uneven flow branches</aside>
-
 __Summary:__  
 Use a buffer if you broadcast a stream and subsequently zip the resulting outputs together if the intermediate branches are uneven.
+
+<aside>Hint: If your flow looks like a diamond, you'll need a buffer if the branches are uneven.</aside>
 
 __Explanation:__  
 A standard Broadcast stage branches a stream. It has one input and multiple outputs with each output emitting the original input. In other words, a standard Broadcast stage broadcasts each incoming element to multiple recipients.
