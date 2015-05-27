@@ -25,6 +25,10 @@ find ~/Projects -name '*.scala' | wc -l
 
 However, the analogy only goes so far and, in fact, can get in the way when trying to understand a Reactive Streams-based application. At least it did for me, hence the post.
 
+#### The Key Difference - Pull vs. Push, or Why a Stream is NOT a Pipe
+
+I know what you're thinking 
+
 #### A Simple Problem
 
 Here's a simple, real world problem to solve using Akka Streams.
