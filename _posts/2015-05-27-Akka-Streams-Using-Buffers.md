@@ -14,6 +14,8 @@ First, the quick tip...
 
 #### Quick Tip: Use a Buffer to match uneven flow branches
 
+<aside>Quick Tip: Use a Buffer to match uneven flow branches</aside>
+
 __Summary:__  
 Use a buffer if you broadcast a stream and subsequently zip the resulting outputs together if the intermediate branches are uneven.
 
