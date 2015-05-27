@@ -1,18 +1,30 @@
 ---
 published: true
 layout: post
-summary: "Want to really understand Reactive Streams? Stop thinking Unix pipes."
+summary: Save yourself a deadlock headache by knowing when to use buffers in your flows
 categories: scala akka streams reactive
-title: "Beyond the Pipe: Really Thinking Pull in Reactive Systems"
+title: "Akka Streams Beyond Basics: Keep that Buffer handy to avoid deadlock"
 ---
 
+Deadlock in an Akka Streams application? Yes, and it doesn't take much, but it's also easy to avoid for the case covered here.
 
+In this post, I'll give you a quick tip for avoiding deadlock in your branching flows and share a simple, real-world example that demonstrates its use.
 
+First, the quick tip...
 
+#### Quick Tip: Use a Buffer to match uneven flow branches
 
-Want to better understand Reactive Streams? Stop thinking Unix pipes.
+__Summary:__  
+Use a buffer if you broadcast a stream and subsequently zip the resulting outputs together if the intermediate branches are uneven.
 
-In this post, I'll tell you why the Unix pipes analogy can get in the way of understanding and debugging an Akka Streams (or any Reactive Streams) application.
+<aside>Hint: If your flow looks like a diamond, you'll need a buffer if the branches are uneven.</aside>
+
+__Explanation:__  
+A standard Broadcast stage branches a stream. It has one input and multiple outputs with each output emitting the original input. In other words, a standard Broadcast stage broadcasts each incoming element to multiple recipients.
+
+Uneven flow branches are created when elements are stored, created, or dropped differently amongst branches. A simple example, depicted below, is a two-branch stream where elements are dropped on one branch, but not the other.
+
+ 
 
 #### A Good Starting Point
 
@@ -166,5 +178,3 @@ Checkout the [Github repository](https://github.com/johnotander/pixyll) to reque
 or add, features.
 
 Happy writing.
-
-<script type="text/javascript" src="https://www.draw.io/js/embed-static.min.js"></script>
