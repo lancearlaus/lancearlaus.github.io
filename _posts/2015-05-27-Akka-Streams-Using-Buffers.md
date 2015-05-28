@@ -6,15 +6,30 @@ categories: scala akka streams reactive
 title: "Akka Streams Beyond Basics: Keep that Buffer handy to avoid deadlock"
 ---
 
+
 ![Akka Streams Buffers Thumbnail]({{ site.url }}/images/Akka Streams Buffers Thumbnail.png)
 
 Deadlock in an Akka Streams application? Yes, and it doesn't take much, but it's also easy to avoid for the case covered here.
 
 In this post, I'll give you a quick tip for avoiding deadlock in your branching flows and share a simple, real-world example that demonstrates its use.
 
-First, the quick tip...
-
 #### Quick Tip: Use a Buffer to match uneven flow branches
+
+Branches are created when splitting a stream. For example, the `Broadcast` stage emits each incoming element to multiple recipients, creating a branch for each of its outputs. A common Reactive Streams pattern is to then apply different transformations to each branch and combine the results to yield a new, enhanced output. I call this a Diamond Flow or a Broadcast/Zip Flow.
+
+__TODO: Diagram__
+
+So far, so good. However, the potential for deadlock arises when branches emit elements at different rates. That is, if there exists any branch that doesn't emit an element every time another branch emits an element. I call these uneven branches, and you'll need a buffer on the shorter branch(es) to absorb the slack, so to speak.
+
+#### A Simple Example
+
+The situation is best explained 
+
+#### Why Deadlock?
+
+
+
+
 
 Use a buffer if you broadcast a stream and subsequently zip the resulting outputs together if the intermediate branches are uneven.
 
