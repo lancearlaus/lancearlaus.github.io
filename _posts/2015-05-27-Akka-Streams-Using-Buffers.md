@@ -23,7 +23,9 @@ So far, so good. However, the potential for deadlock arises when branches emit e
 
 #### A Simple Example
 
-The situation is best explained 
+> Given a stream of daily time-series data, calculate the 7-day offset difference
+
+The solution is a branched 4-stage flow containing a drop to create the 7-day offset.
 
 #### Why Deadlock?
 
