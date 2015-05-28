@@ -19,13 +19,17 @@ Branches are created when splitting a stream. For example, the `Broadcast` stage
 
 __TODO: Diagram__
 
-So far, so good. However, the potential for deadlock arises when branches emit elements at different rates. That is, if there exists any branch that doesn't emit an element every time another branch emits an element. I call these uneven branches, and you'll need a buffer on the shorter branch(es) to absorb the slack, so to speak.
+So far, so good. However, the potential for deadlock arises when branches emit elements at different rates. That is, if there exists any branch that doesn't emit an element every time another branch emits an element. I call these uneven branches.
+
+Branches can become uneven when one branch stores, drops, or creates elements. This is a relatively common case, and you'll need a buffer on the longer branch(es) to absorb the slack, so to speak, to keep from getting deadlocked.
 
 #### A Simple Example
 
 > Given a stream of daily time-series data, calculate the 7-day offset difference
 
-The solution is a branched 4-stage flow containing a drop to create the 7-day offset.
+The solution is a branched 4-stage flow containing a drop to create the 7-day offset. Here's the diagram and corresponding code.
+
+__TODO: Diagram__
 
 #### Why Deadlock?
 
