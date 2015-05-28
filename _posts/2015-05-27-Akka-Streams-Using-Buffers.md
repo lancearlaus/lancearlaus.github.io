@@ -25,12 +25,27 @@ Branches can become uneven when one branch stores, drops, or creates elements. T
 
 #### A Simple Example
 
-> Given a stream of daily time-series data, calculate the 7-day offset difference
+> Given a reverse time series of daily numbers (that is, most recent number first), calculate the 7-day trailing difference
 
-The solution is a branched 4-stage flow containing a drop to create the 7-day offset. Here's the diagram and corresponding code.
+The solution is a branched flow containing a drop to create the 7-day offset. Here's the diagram and corresponding code.
 
 __TODO: Diagram__
 
+````scala
+def trailingDifference(offset: Int) = Flow() { implicit b =>
+
+  val in = b.add(Broadcast[Double](2))
+  val drop = b.add(Flow[Double].drop(offset))
+  val zip = b.add(Zip[Double, Double])
+  val diff = b.add(Flow[(Double, Double)].map { case (num, trail) => (num, num - trail) })
+
+  in ~>         zip.in0
+  in ~> drop ~> zip.in1
+                zip.out ~> diff
+
+  (in.in, diff.outlet)
+}
+````
 #### Why Deadlock?
 
 
