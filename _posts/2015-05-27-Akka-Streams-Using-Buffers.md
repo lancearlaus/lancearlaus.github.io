@@ -6,7 +6,7 @@ categories: scala akka streams reactive
 title: "Akka Streams Beyond Basics: Keep that Buffer handy to avoid deadlock"
 ---
 
-![Akka Streams Buffer Thumbnail]({{ site.url }}/images/Akka Streams Buffer Thumbnail.png)
+![Akka Streams Buffers Thumbnail]({{ site.url }}/images/Akka Streams Buffers Thumbnail.png)
 
 Deadlock in an Akka Streams application? Yes, and it doesn't take much, but it's also easy to avoid for the case covered here.
 
