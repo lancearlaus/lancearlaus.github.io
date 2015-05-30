@@ -15,15 +15,17 @@ In this post, I'll give you a quick tip for avoiding deadlock in your branching 
 
 #### Tip: Use a Buffer to match uneven flow branches
 
-Branches are created when splitting a stream. For example, the `Broadcast` stage emits each incoming element to multiple recipients, creating a branch for each of its outputs. A common Reactive Streams pattern is to then apply different transformations to each branch and combine the results to yield a new, enhanced output. I call this a Diamond Flow or a Broadcast/Zip Flow.
+Branches are created when splitting a stream. For example, the `Broadcast` stage emits each incoming element to multiple recipients, creating a branch for each of its outputs. A common Reactive Streams pattern is to then apply different operations to each branch and combine the results to yield a new, enhanced output. I call this a Diamond Flow or a Broadcast/Zip Flow.
 
 __TODO: Diagram__
 
-So far, so good. However, the potential for deadlock arises when branches emit elements at different rates. That is, if there exists any branch that doesn't emit an element every time another branch emits an element. I call these uneven branches.
+So far, so good. However, the potential for deadlock arises when branches emit elements at different rates. That is, if there exists any branch that doesn't emit an element every time another branch emits an element. You then have what I call uneven branches.
 
 Branches can become uneven when one branch stores, drops, or creates elements. This is a relatively common case, and you'll need a buffer on the longer branch(es) to balance them and absorb the slack, so to speak.
 
-Deadlock happens due to the behavior of Broadcast and Zip. Broadcast can't emit an element until all outputs signal demand while Zip can't signal demand until all its inputs have emitted an element. Uneven branches create a flow where the Zip waits for an element that never arrives. It's a situation that's perhaps best explained by example.
+Deadlock happens due to the behavior of `Broadcast` and `Zip`. `Broadcast` won't emit an element until all outputs (branches) signal demand while `Zip` won't signal demand until all its inputs (branches) have emitted an element. Uneven branches create a flow where the `Broadcast` stage waits for demand that's never signalled while the `Zip` stage waits for an element that never arrives.
+
+It's a situation that's perhaps best explained by example.
 
 #### A Simple Example
 
@@ -48,8 +50,13 @@ def trailingDifference(offset: Int) = Flow() { implicit b =>
   (bcast.in, diff.outlet)
 }
 
-# Example usage
-Source(100 to 1 by -1).via(trailingDifference(offset)).runWith(Sink.foreach(println))
+//Example usage for 7-day trailing difference
+// Prints:
+// (100, 14)
+// (98, 14)
+// ...
+Source(100 to 0 by -2).via(trailingDifference(7)).runWith(Sink.foreach(println))
+
 ````
 
 The result is a stream of tuples containing the original number and the trailing difference. Astute readers will note that the output stream will be shorter than the input stream since the difference can't be calculated for the trailing elements.
@@ -58,17 +65,21 @@ The result is a stream of tuples containing the original number and the trailing
 
 The code above looks fine and may run just fine for small differences (hey, my tests pass!). However, it's got a subtle deadlock bug that will rear its ugly head intermittently, the worst sort of bug to wrangle in production.
 
-Let's apply the basic rule of Reactive Streams to understand how our system can deadlock.
+Let's apply the basic rule of Reactive Streams to understand why.
 
 > Rule: Producers emit elements in response to demand
 
-Sounds familar, right? This basic rule is, of course, the essence of push-based systems.
- that use demand-based back pressure (a fancy name for a variant of flow control).
+Sounds familar, right? This basic rule is, of course, the essence of push-based systems that use demand-based back pressure (a fancy name for a variant of flow control).
 
 Here's what happens in our simple example.
-1. The Sink signals demand, which is relayed through the flow to the Source
-2. The Source emits an element in response
-3. The Broadcast stage 
+
+1. The `Sink` signals demand, which is relayed through the flow to the `Source`
+2. The `Source` receives the demand signal and emits an element that travels through the `Broadcast` stage and down both branches
+3. The `Zip` stage receives an element from the branch without the `Drop`. However, it does __NOT__ receive an element from the branch with the drop. `Zip` must wait until it receives all inputs to emit an element downstream (it must emit well-formed tuples).
+4. The `Drop` stage on the other branch drops the element it received and signals demand upstream to the `Broadcast` stage.
+5. The `Broadcast` stage now has one branch (the one with the `Drop`) that has signalled demand, and one branch that has not since it's connected to the `Zip` stage that's waiting for an element from the `Drop` stage.
+
+Voila, deadlock!
 
 Use a buffer if you broadcast a stream and subsequently zip the resulting outputs together if the intermediate branches are uneven.
 
