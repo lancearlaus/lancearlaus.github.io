@@ -13,7 +13,7 @@ Deadlock in an Akka Streams application? Yes, and it doesn't take much, but it's
 
 In this post, I'll give you a quick tip for avoiding deadlock in your branching flows and share a simple, real-world example that demonstrates its use.
 
-#### Quick Tip: Use a Buffer to match uneven flow branches
+#### Tip: Use a Buffer to match uneven flow branches
 
 Branches are created when splitting a stream. For example, the `Broadcast` stage emits each incoming element to multiple recipients, creating a branch for each of its outputs. A common Reactive Streams pattern is to then apply different transformations to each branch and combine the results to yield a new, enhanced output. I call this a Diamond Flow or a Broadcast/Zip Flow.
 
@@ -21,36 +21,54 @@ __TODO: Diagram__
 
 So far, so good. However, the potential for deadlock arises when branches emit elements at different rates. That is, if there exists any branch that doesn't emit an element every time another branch emits an element. I call these uneven branches.
 
-Branches can become uneven when one branch stores, drops, or creates elements. This is a relatively common case, and you'll need a buffer on the longer branch(es) to absorb the slack, so to speak, to keep from getting deadlocked.
+Branches can become uneven when one branch stores, drops, or creates elements. This is a relatively common case, and you'll need a buffer on the longer branch(es) to balance them and absorb the slack, so to speak.
+
+Deadlock happens due to the behavior of Broadcast and Zip. Broadcast can't emit an element until all outputs signal demand while Zip can't signal demand until all its inputs have emitted an element. Uneven branches create a flow where the Zip waits for an element that never arrives. It's a situation that's perhaps best explained by example.
 
 #### A Simple Example
 
-> Given a reverse time series of daily numbers (that is, most recent number first), calculate the 7-day trailing difference
+Here's a simple problem to solve using Akka Streams.
 
-The solution is a branched flow containing a drop to create the 7-day offset. Here's the diagram and corresponding code.
+> Given a reverse time series of daily integers (that is, most recent number first), calculate the 7-day trailing difference
 
-__TODO: Diagram__
+The solution is a branched flow containing a drop to create the offset. Here's a parameterized function to create the flow.
 
 ````scala
 def trailingDifference(offset: Int) = Flow() { implicit b =>
 
-  val in = b.add(Broadcast[Double](2))
-  val drop = b.add(Flow[Double].drop(offset))
-  val zip = b.add(Zip[Double, Double])
-  val diff = b.add(Flow[(Double, Double)].map { case (num, trail) => (num, num - trail) })
+  val bcast = b.add(Broadcast[Int](2))
+  val drop = b.add(Flow[Int].drop(offset))
+  val zip = b.add(Zip[Int, Int])
+  val diff = b.add(Flow[(Int, Int)].map { case (num, trailing) => (num, num - trailing) })
 
-  in ~>         zip.in0
-  in ~> drop ~> zip.in1
-                zip.out ~> diff
+  bcast ~>         zip.in0
+  bcast ~> drop ~> zip.in1
+                   zip.out ~> diff
 
-  (in.in, diff.outlet)
+  (bcast.in, diff.outlet)
 }
+
+# Example usage
+Source(100 to 1 by -1).via(trailingDifference(offset)).runWith(Sink.foreach(println))
 ````
+
+The result is a stream of tuples containing the original number and the trailing difference. Astute readers will note that the output stream will be shorter than the input stream since the difference can't be calculated for the trailing elements.
+
 #### Why Deadlock?
 
+The code above looks fine and may run just fine for small differences (hey, my tests pass!). However, it's got a subtle deadlock bug that will rear its ugly head intermittently, the worst sort of bug to wrangle in production.
 
+Let's apply the basic rule of Reactive Streams to understand how our system can deadlock.
 
+> Rule: Producers emit elements in response to demand
 
+Sounds familar, right? This basic rule is, of course, the essence of push-based systems.
+ that use demand-based back pressure (a fancy name for a variant of flow control).
+
+Here's what happens in our simple example.
+1. The Sink signals demand, which is relayed through the flow to the Source
+2. The Source emits an element in response
+3. The Broadcast stage 
 
 Use a buffer if you broadcast a stream and subsequently zip the resulting outputs together if the intermediate branches are uneven.
 
