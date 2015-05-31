@@ -80,7 +80,7 @@ Here's what happens in our simple example.
 
 Voila, deadlock!
 
-<iframe src="http://clips.animatron.com/321427d8cae928ed7e3132cabc2a8b3b?w=758&h=240&t=0&r=1" width="758" height="240" frameborder="0"></iframe>
+<iframe src="http://clips.animatron.com/40f20e534ef9f47fa796634ed0ff76f5?w=758&h=240&t=0" width="758" height="240" frameborder="0"></iframe>
 
 Use a buffer if you broadcast a stream and subsequently zip the resulting outputs together if the intermediate branches are uneven.
 
