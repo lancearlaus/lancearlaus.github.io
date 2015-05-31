@@ -15,7 +15,7 @@ In this post, I'll give you a quick tip for avoiding deadlock in your branching 
 
 #### Tip: Use a Buffer to match uneven flow branches
 
-Branches are created when splitting a stream. For example, the `Broadcast` stage emits each incoming element to multiple recipients, creating a branch for each of its outputs. A common Reactive Streams pattern is to then apply different operations to each branch and combine the results to yield a new, enhanced output. I call this a Diamond Flow or a Broadcast/Zip Flow.
+Branches are created when splitting a stream. For example, the `Broadcast` stage emits each incoming element to multiple recipients, creating a branch for each of its outputs. A common Reactive Streams pattern is to process these branches differently and combine the results to yield a new, enhanced output. I call this a Diamond Flow or a Broadcast/Zip Flow.
 
 __TODO: Diagram__
 
@@ -33,7 +33,7 @@ Here's a simple problem to solve using Akka Streams.
 
 > Given a reverse time series of daily integers (that is, most recent number first), calculate the 7-day trailing difference
 
-The solution is a branched flow containing a drop to create the offset. Here's a parameterized function to create the flow.
+The solution is a branched flow containing a drop to create the offset. Here's a function to create the flow.
 
 ````scala
 def trailingDifference(offset: Int) = Flow() { implicit b =>
@@ -50,8 +50,7 @@ def trailingDifference(offset: Int) = Flow() { implicit b =>
   (bcast.in, diff.outlet)
 }
 
-//Example usage for 7-day trailing difference
-// Prints:
+// Example usage for 7-day trailing difference that prints:
 // (100, 14)
 // (98, 14)
 // ...
@@ -69,7 +68,7 @@ Let's apply the basic rule of Reactive Streams to understand why.
 
 > Rule: Producers emit elements in response to demand
 
-Sounds familar, right? This basic rule is, of course, the essence of push-based systems that use demand-based back pressure (a fancy name for a variant of flow control).
+Sounds familar, right? This basic rule is, of course, the essence of push-based systems that use demand-based back pressure.
 
 Here's what happens in our simple example.
 
@@ -80,6 +79,8 @@ Here's what happens in our simple example.
 5. The `Broadcast` stage now has one branch (the one with the `Drop`) that has signalled demand, and one branch that has not since it's connected to the `Zip` stage that's waiting for an element from the `Drop` stage.
 
 Voila, deadlock!
+
+<iframe src="http://clips.animatron.com/321427d8cae928ed7e3132cabc2a8b3b?w=758&h=240&t=0&r=1" width="758" height="240" frameborder="0"></iframe>
 
 Use a buffer if you broadcast a stream and subsequently zip the resulting outputs together if the intermediate branches are uneven.
 
