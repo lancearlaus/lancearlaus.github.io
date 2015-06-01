@@ -5,9 +5,10 @@ author:      Lance Arlaus
 description: "Software architecture and engineering through a wide-angled lens"
 baseurl:     ""
 url:         "http://blog.lancearlaus.com"
+timezone:    America/New_York
 
 # Google analytics
-google_analytics:
+analytics:
 	provider: google
 	google:
 		tracking_id: "UA-63648105-1"
