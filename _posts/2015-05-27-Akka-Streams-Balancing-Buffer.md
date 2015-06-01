@@ -9,7 +9,7 @@ categories: akka streams scala
 
 ![Akka Streams Buffers Thumbnail]({{ site.url }}/images/Akka Streams Buffers Thumbnail.png)
 
-Deadlock in an Akka Streams application? Yes, and it doesn't take much, but it's also easy to avoid for the case covered here.
+Deadlock in an Akka Streams application? Yes, it can happen, but it's also easy to avoid for the case covered here.
 
 In this post, I'll cover the Balancing Buffer pattern for avoiding deadlock in your branching flows and share a simple, real-world example that demonstrates its use. This post assumes basic familiarity with Akka Streams and Scala.
 
