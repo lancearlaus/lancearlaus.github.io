@@ -8,7 +8,9 @@ url:         "http://blog.lancearlaus.com"
 timezone:    America/New_York
 
 # Google analytics
-google_analytics: "UA-63648105-1"
+google_analytics:
+
+#"UA-63648105-1"
 
 # Optional features
 animated:           false
