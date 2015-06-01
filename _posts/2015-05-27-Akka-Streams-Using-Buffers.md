@@ -17,7 +17,7 @@ In this post, I'll give you a quick tip for avoiding deadlock in your branching 
 
 Branches are created when splitting a stream. The `Broadcast` stage, for example, emits each incoming element to multiple recipients, creating a branch for each of its outputs. A common Reactive Streams pattern is to process these branches and combine the results to yield a new, enhanced output.
 
-__TODO: Diagram__
+![Akka Streams Diamond Flow]({{ site.url }}/images/Akka Streams Diamond Flow.png)
 
 So far, so good. However, the potential for deadlock arises when branches emit elements at different rates. That is, if there exists any branch that doesn't emit an element every time another branch emits an element. These mismatched, or uneven, branches will stall a downstream stage, like Zip, that waits for all inputs to arrive before emitting.
 
@@ -80,7 +80,7 @@ Here's what happens in our simple example.
 
 Voila, deadlock!
 
-<iframe src="http://clips.animatron.com/f0fa6620afaf9dbb11b9890562b7bb26?w=758&h=240&t=0&r=1" width="758" height="240" frameborder="0"></iframe>
+<iframe src="http://clips.animatron.com/693b6b4c865ed7d0344d6ab4276b7d59?w=758&h=240&t=0&r=1" width="758" height="240" frameborder="0"></iframe>
 
 Use a buffer if you broadcast a stream and subsequently zip the resulting outputs together if the intermediate branches are uneven.
 
