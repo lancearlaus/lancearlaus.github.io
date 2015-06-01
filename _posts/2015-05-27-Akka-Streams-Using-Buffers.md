@@ -60,11 +60,11 @@ The resulting stream of tuples contains the original number and the trailing dif
 
 #### Why Deadlock?
 
-The code above looks fine and may run just fine for small differences (hey, my tests pass!). However, it's got a subtle deadlock bug that will rear its ugly head intermittently, the worst sort of bug to wrangle in production.
+The code above looks fine and may run just fine for small differences (hey, my tests pass!). However, it's got a subtle deadlock bug that will rear its ugly head intermittently, the worst type to wrangle in production.
 
-Deadlock happens due to the behavior of `Broadcast` and `Zip`. `Broadcast` won't emit an element until all outputs (branches) signal demand while `Zip` won't signal demand until all its inputs (branches) have emitted an element. Uneven branches create a flow where the `Broadcast` stage waits for demand that's never signalled while the `Zip` stage waits for an element that never arrives.
+Deadlock occurs due to the behavior of `Broadcast` and `Zip`. `Broadcast` won't emit an element until all outputs (branches) signal demand while `Zip` won't signal demand until all its inputs (branches) have emitted an element. This makes sense since `Broadcast` is constrained by the slowest consumer and `Zip` must emit well-formed tuples.
 
-Let's apply the basic rule of Reactive Streams to understand why.
+Uneven branches create a flow where the `Broadcast` stage waits for demand that's never signalled while the `Zip` stage waits for an element that never arrives. Let's apply the basic rule of Reactive Streams to understand why.
 
 > Rule: Producers emit elements in response to demand
 
@@ -72,15 +72,18 @@ Sounds familar, right? This basic rule is, of course, the essence of push-based 
 
 Here's what happens in our simple example.
 
+<iframe src="http://clips.animatron.com/693b6b4c865ed7d0344d6ab4276b7d59?w=758&h=240&t=0&r=1" width="758" height="240" frameborder="0"></iframe>
+
 1. The `Sink` signals demand, which is relayed through the flow to the `Source`
 2. The `Source` receives the demand signal and emits an element that travels through the `Broadcast` stage and down both branches
-3. The `Zip` stage receives an element from the branch without the `Drop`. However, it does __NOT__ receive an element from the branch with the drop. `Zip` must wait until it receives all inputs to emit an element downstream (it must emit well-formed tuples).
+3. The `Zip` stage receives an element from the branch without the `Drop`. However, it does __not__ receive an element from the `Drop` branch. `Zip` must wait until it receives all inputs to emit an element downstream (remember, it must emit well-formed tuples).
 4. The `Drop` stage on the other branch drops the element it received and signals demand upstream to the `Broadcast` stage.
 5. The `Broadcast` stage now has one branch (the one with the `Drop`) that has signalled demand, and one branch that has not since it's connected to the `Zip` stage that's waiting for an element from the `Drop` stage.
 
 Voila, deadlock!
 
-<iframe src="http://clips.animatron.com/693b6b4c865ed7d0344d6ab4276b7d59?w=758&h=240&t=0&r=1" width="758" height="240" frameborder="0"></iframe>
+#### Avoiding Deadlock
+
 
 Use a buffer if you broadcast a stream and subsequently zip the resulting outputs together if the intermediate branches are uneven.
 
