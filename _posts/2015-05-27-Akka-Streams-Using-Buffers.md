@@ -1,11 +1,10 @@
 ---
 published: true
 layout: post
+title: "Akka Streams Beyond Basics: Keep that Buffer handy to avoid deadlock"
 summary: Save yourself a deadlock headache by knowing when to use buffers in your flows
 categories: scala akka streams reactive
-title: "Akka Streams Beyond Basics: Keep that Buffer handy to avoid deadlock"
 ---
-
 
 ![Akka Streams Buffers Thumbnail]({{ site.url }}/images/Akka Streams Buffers Thumbnail.png)
 
@@ -13,21 +12,30 @@ Deadlock in an Akka Streams application? Yes, and it doesn't take much, but it's
 
 In this post, I'll give you a quick tip for avoiding deadlock in your branching flows and share a simple, real-world example that demonstrates its use.
 
-#### Tip: Use a Buffer to match uneven flow branches
+#### Tip: Use a Balancing Buffer to balance flow branches
 
-Branches are created when splitting a stream. The `Broadcast` stage, for example, emits each incoming element to multiple recipients, creating a branch for each of its outputs. A common Reactive Streams pattern is to process these branches and combine the results to yield a new, enhanced output.
+Branches are created when splitting a stream. The `Broadcast` stage, for example, emits each incoming element to multiple recipients, creating a branch for each of its outputs. A common pattern found in Reactive Streams applications is to process these branches and combine the results into a new output.
 
 ![Akka Streams Diamond Flow]({{ site.url }}/images/Akka Streams Diamond Flow.png)
 
-So far, so good. However, the potential for deadlock arises when branches emit elements at different rates. That is, if there exists any branch that doesn't emit an element every time another branch emits an element. These mismatched, or uneven, branches will stall a downstream stage, like Zip, that waits for all inputs to arrive before emitting.
+So far, so good. However, the potential for deadlock arises when branches emit elements at different rates. That is, if there exists any branch that doesn't emit an element every time another branch emits an element. These uneven, or unbalanced, branches will stall a downstream stage, like Zip, that waits for all inputs to arrive before emitting.
 
-Branches can become uneven when one branch stores, drops, or creates elements. This is a relatively common case, and you'll need a buffer on the longer branch(es) to absorb the slack and balance the flow.
+Branches can become unbalanced when one branch drops or stores elements. For example, a sliding window stage that buffers elements before emitting a full window. This is a relatively common case, and you'll need a Balancing Buffer on the longer branch(es) to absorb the slack and balance the flow.
 
-It's a situation that's perhaps best explained by example.
+#### Balancing Buffer Guidelines
+
+A Balancing Buffer is a buffer stage inserted into a flow to balance, or match, its demand with another flow.
+It is inserted immediately after the `Broadcast`, or other fan-out, stage and is sized to the maximum offset between branches.
+
+Follow these simple guidelines to avoid deadlock by using a Balancing Buffer in your branching flows.
+
+1. Identify flows that fan out and fan in multiple branches, typically via a `Broadcast` and subsequent `Zip` stage.
+2. Identify unbalanced branches and determine the maximum offset between them. The maximum offset is the maximum number of elements emitted by one branch before a corresponding branch emits an element.
+3. Insert a buffer on the longer branch(es) immediately after the `Broadcast` stage and size it to the maximum offset. Long branches are those without the drop/store.
 
 #### A Simple Example
 
-Here's a simple problem to solve using Akka Streams.
+Let's look at a simple example to understand why deadlock occurs and how to avoid it.
 
 > Given a reverse time series of daily integers (that is, most recent number first), calculate the 7-day trailing difference
 
@@ -62,15 +70,15 @@ The resulting stream of tuples contains the original number and the trailing dif
 
 The code above looks fine and may run just fine for small differences (hey, my tests pass!). However, it's got a subtle deadlock bug that will rear its ugly head intermittently, the worst type to wrangle in production.
 
-Deadlock occurs due to the behavior of `Broadcast` and `Zip`. `Broadcast` won't emit an element until all outputs (branches) signal demand while `Zip` won't signal demand until all its inputs (branches) have emitted an element. This makes sense since `Broadcast` is constrained by the slowest consumer and `Zip` must emit well-formed tuples.
+Deadlock occurs due to the `Drop` combined with the behavior of `Broadcast` and `Zip`. `Broadcast` won't emit an element until all outputs (branches) signal demand while `Zip` won't signal demand until all its inputs (branches) have emitted an element. This makes sense since `Broadcast` is constrained by the slowest consumer and `Zip` must emit well-formed tuples.
 
-Uneven branches create a flow where the `Broadcast` stage waits for demand that's never signalled while the `Zip` stage waits for an element that never arrives. Let's apply the basic rule of Reactive Streams to understand why.
+Unbalanced branches create a flow where the `Broadcast` stage waits for demand that's never signalled while the `Zip` stage waits for an element that never arrives. Let's apply the basic rule of Reactive Streams to understand why.
 
 > Rule: Producers emit elements in response to demand
 
 Sounds familar, right? This basic rule is, of course, the essence of push-based systems that use demand-based back pressure.
 
-Here's what happens in our simple example.
+Here's a detailed look at what happens in our simple example.
 
 <iframe src="http://clips.animatron.com/693b6b4c865ed7d0344d6ab4276b7d59?w=758&h=240&t=0&r=1" width="758" height="240" frameborder="0"></iframe>
 
