@@ -8,23 +8,26 @@ url:         "http://blog.lancearlaus.com"
 
 # Google analytics
 google_analytics:
+	provider: google
+	google:
+		tracking_id: "UA-63648105-1"
 
 # Optional features
 animated:           false
-show_related_posts: false
+show_related_posts: true
 show_post_footers:  false
 
 # Disqus post comments
 # (leave blank to disable Disqus)
-disqus_shortname:
+disqus_shortname: lancearlaus-blog
 
 # Social icons
-show_social_icons: false
-github_username:
+show_social_icons: true
+github_username: lancearlaus
 stackoverflow_id:
-twitter_username:
-google_plus_id:
-linkedin_username:
+twitter_username: lancearlaus
+google_plus_id: lance.arlaus
+linkedin_username: lancearlaus
 angellist_username:
 bitcoin_url:
 paypal_url:
@@ -34,11 +37,11 @@ flattr_button:
 show_sharing_icons: false
 share_text: 'Share this post!'
 # Change to 'true' to enable individual icons
-share_facebook: false
+share_facebook: true
 share_twitter: true
 share_googleplus: false
 share_linkedin: true
-share_digg: false
+share_digg: true
 share_tumblr: false
 share_reddit: false
 share_stumbleupon: false
@@ -49,6 +52,6 @@ markdown:     redcarpet
 redcarpet:
   extensions: ['smart', 'tables', 'with_toc_data']
 permalink:    pretty
-paginate:     3
+paginate:     4
 sass:
   compressed: true
