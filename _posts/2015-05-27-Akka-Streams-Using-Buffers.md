@@ -15,15 +15,13 @@ In this post, I'll give you a quick tip for avoiding deadlock in your branching 
 
 #### Tip: Use a Buffer to match uneven flow branches
 
-Branches are created when splitting a stream. For example, the `Broadcast` stage emits each incoming element to multiple recipients, creating a branch for each of its outputs. A common Reactive Streams pattern is to process these branches differently and combine the results to yield a new, enhanced output. I call this a Diamond Flow or a Broadcast/Zip Flow.
+Branches are created when splitting a stream. The `Broadcast` stage, for example, emits each incoming element to multiple recipients, creating a branch for each of its outputs. A common Reactive Streams pattern is to process these branches and combine the results to yield a new, enhanced output.
 
 __TODO: Diagram__
 
-So far, so good. However, the potential for deadlock arises when branches emit elements at different rates. That is, if there exists any branch that doesn't emit an element every time another branch emits an element. You then have what I call uneven branches.
+So far, so good. However, the potential for deadlock arises when branches emit elements at different rates. That is, if there exists any branch that doesn't emit an element every time another branch emits an element. These mismatched, or uneven, branches will stall a downstream stage, like Zip, that waits for all inputs to arrive before emitting.
 
-Branches can become uneven when one branch stores, drops, or creates elements. This is a relatively common case, and you'll need a buffer on the longer branch(es) to balance them and absorb the slack, so to speak.
-
-Deadlock happens due to the behavior of `Broadcast` and `Zip`. `Broadcast` won't emit an element until all outputs (branches) signal demand while `Zip` won't signal demand until all its inputs (branches) have emitted an element. Uneven branches create a flow where the `Broadcast` stage waits for demand that's never signalled while the `Zip` stage waits for an element that never arrives.
+Branches can become uneven when one branch stores, drops, or creates elements. This is a relatively common case, and you'll need a buffer on the longer branch(es) to absorb the slack and balance the flow.
 
 It's a situation that's perhaps best explained by example.
 
@@ -33,7 +31,7 @@ Here's a simple problem to solve using Akka Streams.
 
 > Given a reverse time series of daily integers (that is, most recent number first), calculate the 7-day trailing difference
 
-The solution is a branched flow containing a drop to create the offset. Here's a function to create the flow.
+The solution is a branched flow containing a drop to create the offset.
 
 ````scala
 def trailingDifference(offset: Int) = Flow() { implicit b =>
@@ -58,11 +56,13 @@ Source(100 to 0 by -2).via(trailingDifference(7)).runWith(Sink.foreach(println))
 
 ````
 
-The result is a stream of tuples containing the original number and the trailing difference. Astute readers will note that the output stream will be shorter than the input stream since the difference can't be calculated for the trailing elements.
+The resulting stream of tuples contains the original number and the trailing difference. Astute readers will note that the output stream will be shorter than the input stream since the difference can't be calculated for the trailing elements.
 
 #### Why Deadlock?
 
 The code above looks fine and may run just fine for small differences (hey, my tests pass!). However, it's got a subtle deadlock bug that will rear its ugly head intermittently, the worst sort of bug to wrangle in production.
+
+Deadlock happens due to the behavior of `Broadcast` and `Zip`. `Broadcast` won't emit an element until all outputs (branches) signal demand while `Zip` won't signal demand until all its inputs (branches) have emitted an element. Uneven branches create a flow where the `Broadcast` stage waits for demand that's never signalled while the `Zip` stage waits for an element that never arrives.
 
 Let's apply the basic rule of Reactive Streams to understand why.
 
