@@ -13,7 +13,7 @@ Deadlock in an Akka Streams application? Yes, and it doesn't take much, but it's
 
 In this post, I'll cover the Balancing Buffer pattern for avoiding deadlock in your branching flows and share a simple, real-world example that demonstrates its use. This post assumes basic familiarity with Akka Streams and Scala.
 
-#### Background: Unbalanced Flow Branches
+## Background: Unbalanced Flow Branches
 
 Branches are created when splitting a stream. The `Broadcast` stage, for example, emits each incoming element to multiple recipients, creating a branch for each of its outputs. A common pattern found in Reactive Streams applications is to process these branches and combine the results into a new output.
 
@@ -23,7 +23,7 @@ So far, so good. However, the potential for deadlock arises when branches emit e
 
 Branches can become unbalanced when one branch drops or stores elements. For example, a sliding window stage that buffers elements before emitting a full window. This is a relatively common case, and you'll need a Balancing Buffer on the corresponding branch(es) to absorb the slack and balance the flow.
 
-#### Balancing Buffer Design Pattern Explained
+## Balancing Buffer Design Pattern Explained
 
 A Balancing Buffer is a buffer stage inserted into a flow to balance, or match, its demand with another flow, thus avoiding deadlock by ensuring that sufficient demand is signalled upstream to continue the flow of elements through the system. The Balancing Buffer is inserted immediately after the `Broadcast`, or other fan-out, stage and is sized to the maximum offset between branches.
 
@@ -33,7 +33,7 @@ Follow the guidelines below to avoid deadlock by using a Balancing Buffer in you
 2. Identify unbalanced branches and determine the maximum offset between them. The maximum offset is the maximum number of elements emitted by one branch before a corresponding branch emits an element.
 3. Insert a buffer immediately after the `Broadcast` stage on the branch with slack and size it to the maximum offset.
 
-#### A Simple Example
+## A Simple Example
 
 Let's look at a simple example to understand why deadlock occurs and how to avoid it using a Balancing Buffer.
 
@@ -68,7 +68,7 @@ Source(100 to 0 by -2).via(trailingDifference(7)).runWith(Sink.foreach(println))
 
 The resulting stream of tuples contains the original number and the trailing difference. Note that the output stream will be shorter than the input stream since the difference can't be calculated for the trailing elements.
 
-#### Why Deadlock?
+## Why Deadlock?
 
 The code above looks fine and may run just fine for small differences (hey, my tests pass!). However, it's got a subtle deadlock bug that will rear its ugly head intermittently, the worst type to wrangle in production.
 
@@ -90,7 +90,7 @@ Sounds familar, right? This basic rule of Reactive Streams is the essence of pus
 
 Voila, deadlock!
 
-#### Avoiding Deadlock
+## Avoiding Deadlock
 
 We can apply the guidelines covered earlier to balance our flow and avoid deadlock. The maximum difference between the two branches in our case is the trailing difference offset. The buffer is sized accordingly.
 
@@ -116,7 +116,7 @@ def trailingDifference(offset: Int) = Flow() { implicit b =>
 
 That's it - a two line change to avoid deadlock.
 
-#### Addendum: Why Intermittent Deadlock?
+## Addendum: Why Intermittent Deadlock?
 
 You may have noticed that I used the word 'intermittent' when describing the deadlock bug above.
 Your tests may run fine 9 out of 10 times, only to fail that 10th time without you being able to reproduce the problem in a debugger.
@@ -126,7 +126,7 @@ What makes this bug intermittent?
 
 Hint: The answer lies in the internal buffers that Akka Streams sets up by default to improve performance, but that sounds like fodder for another blog post...
 
-#### Parting Words and Acknowledgements
+## Parting Words and Acknowledgements
 
 I hope this article helps you avoid the deadlock headache I experienced. Heck, even the Akka folks from Typesafe weren't entirely familiar with this issue when I [posted to their mailing list](https://groups.google.com/forum/#!topic/akka-user/SE8l9oxGjtY).
 
