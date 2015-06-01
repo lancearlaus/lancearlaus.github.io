@@ -1,19 +1,19 @@
 ---
 layout: page
-title: About Pixyll
+title: About Lance Arlaus
 permalink: /about/
 ---
 
-This Jekyll theme was crafted with <3 by [John Otander](http://johnotander.com)
-([@4lpine](https://twitter.com/4lpine)).
+My name is Lance Arlaus. I am a well-rounded technologist living in the NYC metro area.  
+I am a Manager, a Developer, and an Agile Coach with business acumen and technology insight.  
+I thoroughly enjoy architecting software systems and leading talented software development teams working on interesting problems.  
 
-Checkout the [Github repository](https://github.com/johnotander/pixyll) to download it,
-request a feature, report a bug, or contribute. It's free, and open source
-([MIT](http://opensource.org/licenses/MIT)).
+This is my tech blog, which I update from time to time when I get the time.
 
-Thanks to the following:
+Thanks to the following great software for making this blog possible.
 
-* [BASSCSS](http://basscss.com)
+* [GitHub Pages](https://pages.github.com/)
 * [Jekyll](http://jekyllrb.com)
-* [Refills](http://refills.bourbon.io/)
-* [Solarized](http://ethanschoonover.com/solarized)
+* [Pixyll](http://pixyll.com/)
+* [Animatron](https://www.animatron.com/)
+* [draw.io](https://www.draw.io/)
